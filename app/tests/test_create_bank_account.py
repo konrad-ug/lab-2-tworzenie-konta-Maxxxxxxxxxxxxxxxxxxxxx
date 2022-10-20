@@ -10,4 +10,9 @@ class TestCreateBankAccount(unittest.TestCase):
         self.assertEqual(pierwsze_konto.nazwisko, "Januszewski", "Nazwisko nie zostało zapisane!")
         self.assertEqual(pierwsze_konto.saldo, 0, "Saldo nie jest zerowe!")
 
+    def test_przelewanie(self):
+        konto1 = Konto("Jan", "Paweł")
+        konto2 = Konto("Piotr", "Łuszcz", )
+        konto1.przelew(konto2, 2137)
+
     #tutaj proszę dodawać nowe testy
