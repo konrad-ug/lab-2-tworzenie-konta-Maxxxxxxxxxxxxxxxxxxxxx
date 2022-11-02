@@ -1,8 +1,10 @@
 import unittest
 import re
 
-from ..Account import Account
-from ..Ops import Withdrawal, Transfer, Deposit
+from ..Account import Account, AccountFirma
+from ..Account import Withdrawal, Transfer, Deposit
+
+valid_pesel = "02252928673"
 
 class TestCreateBankAccount(unittest.TestCase):
     def test_create_acc(self):
@@ -45,6 +47,20 @@ class TestOperations(unittest.TestCase):
         account.operation(Deposit(1200))
         self.assertEqual(account.balance, 1200, "Stan konta nie zgadza się!")
 
+    def test_transfer_express_regular(self):
+        sender = Account("Zenon", "Gdula", valid_pesel, 100)
+        recipient = Account("Max", "Schlamberger", valid_pesel)
+
+        sender.operation(Transfer(recipient, 90, True))
+        self.assertEqual(sender.balance, 9)
+
+    def test_transfer_express_firma(self):
+        sender = AccountFirma("JP Firma", "4202137000", 2137)
+        recipient = AccountFirma("Polska Policja", "99700011143")
+
+        sender.operation(Transfer(recipient, 137, True))
+        self.assertEqual(sender.balance, 1995)
+
 class TestPESEL(unittest.TestCase):
     def test_pesel_chars(self):
         account = Account("Zenon", "Gdula", "02252928673")
@@ -54,10 +70,6 @@ class TestPESEL(unittest.TestCase):
 
     # def test_pesel_not_valid(self):
     #     self.assertRaises(ValueError, Account, "Zenon", "Gdula", "94319932138")
-
-    def test_pesel_not_valid(self):
-        account = Account("Zenek", "Gdula", "120")
-        self.assertEqual
 
     def test_pesel_valid(self):
         acc = Account("Zenon", "Gdula", "02252928673");
@@ -75,3 +87,14 @@ class TestPESEL(unittest.TestCase):
             comparison_value = 10 - checksum % 10
         
         self.assertEqual(int(acc.pesel[10]), comparison_value)
+
+class TestCreateAccountFirma(unittest.TestCase):
+    def success_create_firma_account_nip(self):
+        firma = AccountFirma("Usługi Informatyczne Wiesław Pawłowski", "4202137000")
+
+        self.assertEqual(firma.nip, "4202137000")
+
+    def fail_create_firma_account_nip(self):
+        firma = AccountFirma("Antmicro", "100643223918")
+
+        self.assertEqual(firma.nip, "Niepoprawny NIP!")

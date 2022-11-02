@@ -2,10 +2,12 @@ from ast import With
 import unittest
 
 from ..Account import Account
-from ..Ops import Withdrawal, Transfer, Deposit
-from ..OpLog import Log, OperationLogger
+from ..Account import Withdrawal, Transfer, Deposit
+from ..Account import Log, OperationLogger
 
 import datetime
+
+valid_pesel = "02252928673"
 
 class TestOpLogger(unittest.TestCase):
     def test_logger(self):
@@ -16,6 +18,24 @@ class TestOpLogger(unittest.TestCase):
         account1.operation(Transfer(account2, 100))
 
         self.assertEqual(len(account1.op_logger.ops_list), 2)
+
+    # def test_log_transfer(self):
+    #     a1 = Account("Zenek", "Gdula", "00292445145", 500)
+    #     recipient = Account("Greta", "Gdula", "00292445145")
+
+    #     a1.operation(Transfer(recipient, 500))
+
+    #     a1.op_logger.show()
+    #     recipient.op_logger.show()
+
+    def test_transfer_receive(self):
+        sender = Account("haha", "asdads", valid_pesel, 1500)
+        recipient = Account("Zenon", "Gdula", valid_pesel)
+
+        sender.operation(Transfer(recipient, 500))
+        length = len(recipient.op_logger.ops_list)
+
+        self.assertEqual(length, 1)
 
 class TestLogObject(unittest.TestCase):
     def test_log_parse(self):
