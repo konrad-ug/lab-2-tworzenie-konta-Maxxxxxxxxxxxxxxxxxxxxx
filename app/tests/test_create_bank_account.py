@@ -1,5 +1,4 @@
 import unittest
-import re
 
 from ..Account import Account, AccountFirma
 from ..Account import Withdrawal, Transfer, Deposit
@@ -82,6 +81,25 @@ class TestOperations(unittest.TestCase):
         account1.operation(Transfer(account2, 100))
 
         self.assertEqual(account1.historia, [1000,-1000,-1,-500,-100])
+
+    def test_credit_reject(self):
+        account1 = Account("a", "bc", valid_pesel)
+
+        self.assertEqual(account1.zaciagnij_kredyt(5000), False)
+
+    def test_credit_ok_5_last_greater_than(self):
+        account1 = Account("a","b", valid_pesel)
+        account1.operation(Deposit(5000))
+
+        self.assertEqual(account1.zaciagnij_kredyt(4000), True)
+
+    def test_credit_ok_three_last(self):
+        account1 = Account("a","b", valid_pesel)
+        account1.operation(Deposit(1))
+        account1.operation(Deposit(2))
+        account1.operation(Deposit(3))
+
+        self.assertEqual(account1.zaciagnij_kredyt(4000), True)
 
 class TestPESEL(unittest.TestCase):
     def test_pesel_chars(self):

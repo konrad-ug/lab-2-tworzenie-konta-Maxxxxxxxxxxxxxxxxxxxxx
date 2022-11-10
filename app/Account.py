@@ -25,6 +25,9 @@ class AbstractAccount:
             self.op_logger.log_operation(op)
             return True
 
+    def zaciagnij_kredyt(self, value):
+        self.operation(Credit(value))
+
 class Account(AbstractAccount):
     def __init__(
         self, name, surname, 
@@ -92,6 +95,31 @@ class Withdrawal:
     def exec(self, account):
         account.balance = account.balance - self.value
         account.historia.append(-self.value)
+
+class Credit:
+    def __init__(self, value):
+        self.value = value
+        self.op_name = "Credit"
+
+    def __check_eligible(self, account):
+        sum = 0
+        if len(account.historia) <= 5:
+            for value in account.historia:
+                sum += value
+        else:
+            for i in range(5):
+                sum += account.historia[i]
+        if self.value > sum:
+            return True
+        else:
+            return False
+
+    def exec(self, account):
+        is_eligible = self.__check_eligible(account)
+        if is_eligible:
+            account.balance += self.value
+            account.historia.append(self.value)
+        return is_eligible
 
 class Transfer:
     def __init__(self, recipient, value, is_express = False):
