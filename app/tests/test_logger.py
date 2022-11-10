@@ -48,6 +48,3 @@ class TestLogObject(unittest.TestCase):
         log_stringed = "{0}".format(new_log)
 
         self.assertEqual(log_stringed, fmt_string)
-
-
-

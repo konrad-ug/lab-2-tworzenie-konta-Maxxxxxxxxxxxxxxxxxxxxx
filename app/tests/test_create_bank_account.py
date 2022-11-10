@@ -61,6 +61,28 @@ class TestOperations(unittest.TestCase):
         sender.operation(Transfer(recipient, 137, True))
         self.assertEqual(sender.balance, 1995)
 
+    def test_historia(self):
+        account1 = Account("Jezus", "Chrystus", valid_pesel, 2000)
+        account2 = Account("Judasz", "Judasz", valid_pesel)
+        
+        account1.operation(Deposit(1000))
+        account1.operation(Withdrawal(1000))
+        account1.operation(Transfer(account2, 500))
+
+        self.assertEqual(account1.historia, [1000, -1000, -500])
+        self.assertEqual(account2.historia, [500])
+
+    def test_historia_express(self):
+        account1 = Account("Jezus", "Chrystus", valid_pesel, 2000)
+        account2 = Account("Judasz", "Judasz", valid_pesel)
+        
+        account1.operation(Deposit(1000))
+        account1.operation(Withdrawal(1000))
+        account1.operation(Transfer(account2, 500, is_express=True))
+        account1.operation(Transfer(account2, 100))
+
+        self.assertEqual(account1.historia, [1000,-1000,-1,-500,-100])
+
 class TestPESEL(unittest.TestCase):
     def test_pesel_chars(self):
         account = Account("Zenon", "Gdula", "02252928673")

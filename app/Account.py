@@ -37,8 +37,7 @@ class Account(AbstractAccount):
         self.balance = self._validate_promo(prom, initial_value)
         self.op_logger = OperationLogger()
         self.acc_id = uuid.uuid4()
-
-    #    self._validate_promo(prom)
+        self.historia = []
 
     def _validate_promo(self, code, initial):
         if code == None:
@@ -81,22 +80,20 @@ class AccountFirma(AbstractAccount):
         self.balance = initial_value
         self.op_logger = OperationLogger()
         self.acc_id = uuid.uuid4()
+        self.historia = []
 
 # --------------------------------- Operacje ---------------------------------
 
-class Operation:
-    def exec(self, account):
-        pass
-
-class Withdrawal(Operation):
+class Withdrawal:
     def __init__(self, value):
         self.value = value
         self.op_name = "Withdrawal"
 
     def exec(self, account):
         account.balance = account.balance - self.value
+        account.historia.append(-self.value)
 
-class Transfer(Operation):
+class Transfer:
     def __init__(self, recipient, value, is_express = False):
         self.recipient = recipient
         self.value = value
@@ -107,17 +104,22 @@ class Transfer(Operation):
         if self.is_express:
             switch = { AccountFirma: 5, Account: 1 }
             account.balance -= switch[type(account)]
+            account.historia.append(-switch[type(account)])
 
         account.balance = account.balance - self.value
+        account.historia.append(-self.value)
         self.recipient.balance = self.recipient.balance + self.value
+        self.recipient.historia.append(self.value)
 
-class Deposit(Operation):
+
+class Deposit:
     def __init__(self, value):
         self.value = value
         self.op_name = "Deposit"
 
     def exec(self, account):
         account.balance = account.balance + self.value
+        account.historia.append(self.value)
 
 class OperationLogger:
     def __init__(self):
