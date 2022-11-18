@@ -30,6 +30,7 @@ class TestCreateBankAccount(unittest.TestCase):
     #tutaj proszę dodawać nowe testy
 
 class TestOperations(unittest.TestCase):
+
     def test_withdraw(self):
         account = Account("wp", "ug", "02252928673", 1000)
         account.operation(Withdrawal(500))
@@ -99,6 +100,11 @@ class TestOperations(unittest.TestCase):
         account1.operation(Deposit(5000))
 
         self.assertEqual(account1.zaciagnij_kredyt(4000), True)
+
+    def test_credit_fail(self):
+        account1 = Account("a","b", valid_pesel)
+
+        self.assertEqual(account1.zaciagnij_kredyt(100), False)
 
     def test_credit_ok_three_last(self):
         account1 = Account("a","b", valid_pesel)

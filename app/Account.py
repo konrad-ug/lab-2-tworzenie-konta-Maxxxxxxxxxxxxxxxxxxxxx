@@ -3,9 +3,6 @@ import re
 import uuid
 
 class AbstractAccount:
-    def __init__(self):
-        pass
-    
     def operation(self, op):
         if not isinstance(op, Deposit) or isinstance(op, Credit):
             if op.value > self.balance:
@@ -100,13 +97,13 @@ class Credit:
         self.value = value
         self.op_name = "Credit"
 
-    def check_eligible_enterprise(self, account) -> bool:
+    def __check_eligible_enterprise(self, account) -> bool:
         if account.balance > self.value*2 and -1775 in account.historia:
             return True
         else:
             return False
 
-    def check_eligible_normal_acc(self, account):
+    def __check_eligible_normal_acc(self, account):
         if len(account.historia) >= 3:
             state = True
             if account.historia[-1] <= 0:
@@ -132,9 +129,9 @@ class Credit:
 
     def exec(self, account):
         if type(account) == Account:
-            is_eligible = self.check_eligible_normal_acc(account)
+            is_eligible = self.__check_eligible_normal_acc(account)
         elif type(account) == AccountFirma:
-            is_eligible = self.check_eligible_enterprise(account)
+            is_eligible = self.__check_eligible_enterprise(account)
 
         if is_eligible:
             account.balance += self.value
