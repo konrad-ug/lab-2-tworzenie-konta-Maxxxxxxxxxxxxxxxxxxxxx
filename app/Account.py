@@ -3,27 +3,24 @@ import re
 import uuid
 
 class AbstractAccount:
-    def __init__(self):
-        pass
-    
     def operation(self, op):
-        if not isinstance(op, Deposit):
+        if not isinstance(op, Deposit) or isinstance(op, Credit):
             if op.value > self.balance:
                 return False
             else:
                 if not isinstance(op, Transfer):
-                    op.exec(self)
                     self.op_logger.log_operation(op)
-                    return True
+                    return op.exec(self)
                 elif isinstance(op, Transfer):
-                    op.exec(self)
                     self.op_logger.log_operation(op)
                     op.recipient.op_logger.log_received_transfer(op.value, self.acc_id, op.is_express)
-                    return True
+                    return op.exec(self)
         else:
-            op.exec(self)
             self.op_logger.log_operation(op)
-            return True
+            return op.exec(self)
+
+    def zaciagnij_kredyt(self, value):
+        return self.operation(Credit(value))
 
 class Account(AbstractAccount):
     def __init__(
@@ -92,6 +89,54 @@ class Withdrawal:
     def exec(self, account):
         account.balance = account.balance - self.value
         account.historia.append(-self.value)
+        return True
+
+
+class Credit:
+    def __init__(self, value):
+        self.value = value
+        self.op_name = "Credit"
+
+    def __check_eligible_enterprise(self, account) -> bool:
+        if account.balance > self.value*2 and -1775 in account.historia:
+            return True
+        else:
+            return False
+
+    def __check_eligible_normal_acc(self, account):
+        if len(account.historia) >= 3:
+            state = True
+            if account.historia[-1] <= 0:
+                state = False
+            if account.historia[-2] <= 0:
+                state = False
+            if account.historia[-3] <= 0:
+                state = False
+
+            if state:
+                return True
+            elif not state:
+                if len(account.historia) > 5:
+                    sum = 0
+                    for i in range(1,6):
+                        sum += account.historia[-i]
+                    if sum > self.value:
+                        return True
+                    else:
+                        return False
+        else:
+            return False
+
+    def exec(self, account):
+        if type(account) == Account:
+            is_eligible = self.__check_eligible_normal_acc(account)
+        elif type(account) == AccountFirma:
+            is_eligible = self.__check_eligible_enterprise(account)
+
+        if is_eligible:
+            account.balance += self.value
+            account.historia.append(self.value)
+        return is_eligible
 
 class Transfer:
     def __init__(self, recipient, value, is_express = False):
@@ -110,6 +155,7 @@ class Transfer:
         account.historia.append(-self.value)
         self.recipient.balance = self.recipient.balance + self.value
         self.recipient.historia.append(self.value)
+        return True
 
 
 class Deposit:
@@ -120,6 +166,7 @@ class Deposit:
     def exec(self, account):
         account.balance = account.balance + self.value
         account.historia.append(self.value)
+        return True
 
 class OperationLogger:
     def __init__(self):

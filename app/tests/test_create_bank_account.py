@@ -1,5 +1,4 @@
 import unittest
-import re
 
 from ..Account import Account, AccountFirma
 from ..Account import Withdrawal, Transfer, Deposit
@@ -7,6 +6,7 @@ from ..Account import Withdrawal, Transfer, Deposit
 valid_pesel = "02252928673"
 
 class TestCreateBankAccount(unittest.TestCase):
+
     def test_create_acc(self):
         acc1 = Account("Dariusz", "Januszewski", "02252928673")
         self.assertEqual(acc1.name, "Dariusz", "Imie nie zostało zapisane!")
@@ -30,6 +30,7 @@ class TestCreateBankAccount(unittest.TestCase):
     #tutaj proszę dodawać nowe testy
 
 class TestOperations(unittest.TestCase):
+
     def test_withdraw(self):
         account = Account("wp", "ug", "02252928673", 1000)
         account.operation(Withdrawal(500))
@@ -82,6 +83,57 @@ class TestOperations(unittest.TestCase):
         account1.operation(Transfer(account2, 100))
 
         self.assertEqual(account1.historia, [1000,-1000,-1,-500,-100])
+
+    def test_credit_reject(self):
+        account1 = Account("a", "bc", valid_pesel)
+
+        self.assertEqual(account1.zaciagnij_kredyt(5000), False)
+
+    def test_credit_ok_5_last_greater_than(self):
+        account1 = Account("a","b", valid_pesel)
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+
+        self.assertEqual(account1.zaciagnij_kredyt(4000), True)
+
+    def test_credit_fail(self):
+        account1 = Account("a","b", valid_pesel)
+
+        self.assertEqual(account1.zaciagnij_kredyt(100), False)
+
+    def test_credit_ok_three_last(self):
+        account1 = Account("a","b", valid_pesel)
+        account1.operation(Deposit(300))
+        account1.operation(Deposit(300))
+        account1.operation(Deposit(300))
+        account1.operation(Deposit(50))
+
+        print(account1.historia)
+
+        self.assertEqual(account1.zaciagnij_kredyt(1000), False)
+
+    def test_enterprise_credit_ok(self):
+        acc = AccountFirma("JP Firma", "4202137000")
+
+        acc.operation(Deposit(5000))
+        acc.operation(Deposit(5000))
+        acc.operation(Withdrawal(1775))
+
+        self.assertEqual(acc.zaciagnij_kredyt(500), True)
+
+    def test_enterprise_credit_not_ok(self):
+        acc = AccountFirma("JP Firma", "4202137000")
+
+        acc.operation(Deposit(5000))
+        acc.operation(Deposit(5000))
+
+        self.assertEqual(acc.zaciagnij_kredyt(1000), False)
+
 
 class TestPESEL(unittest.TestCase):
     def test_pesel_chars(self):
