@@ -6,6 +6,7 @@ from ..Account import Withdrawal, Transfer, Deposit
 valid_pesel = "02252928673"
 
 class TestCreateBankAccount(unittest.TestCase):
+
     def test_create_acc(self):
         acc1 = Account("Dariusz", "Januszewski", "02252928673")
         self.assertEqual(acc1.name, "Dariusz", "Imie nie zostało zapisane!")
@@ -90,16 +91,25 @@ class TestOperations(unittest.TestCase):
     def test_credit_ok_5_last_greater_than(self):
         account1 = Account("a","b", valid_pesel)
         account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
+        account1.operation(Deposit(5000))
 
         self.assertEqual(account1.zaciagnij_kredyt(4000), True)
 
     def test_credit_ok_three_last(self):
         account1 = Account("a","b", valid_pesel)
-        account1.operation(Deposit(1))
-        account1.operation(Deposit(2))
-        account1.operation(Deposit(3))
+        account1.operation(Deposit(300))
+        account1.operation(Deposit(300))
+        account1.operation(Deposit(300))
+        account1.operation(Deposit(50))
 
-        self.assertEqual(account1.zaciagnij_kredyt(4000), True)
+        print(account1.historia)
+
+        self.assertEqual(account1.zaciagnij_kredyt(1000), False)
 
 class TestPESEL(unittest.TestCase):
     def test_pesel_chars(self):
