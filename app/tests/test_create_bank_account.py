@@ -111,6 +111,24 @@ class TestOperations(unittest.TestCase):
 
         self.assertEqual(account1.zaciagnij_kredyt(1000), False)
 
+    def test_enterprise_credit_ok(self):
+        acc = AccountFirma("JP Firma", "4202137000")
+
+        acc.operation(Deposit(5000))
+        acc.operation(Deposit(5000))
+        acc.operation(Withdrawal(1775))
+
+        self.assertEqual(acc.zaciagnij_kredyt(500), True)
+
+    def test_enterprise_credit_not_ok(self):
+        acc = AccountFirma("JP Firma", "4202137000")
+
+        acc.operation(Deposit(5000))
+        acc.operation(Deposit(5000))
+
+        self.assertEqual(acc.zaciagnij_kredyt(1000), False)
+
+
 class TestPESEL(unittest.TestCase):
     def test_pesel_chars(self):
         account = Account("Zenon", "Gdula", "02252928673")

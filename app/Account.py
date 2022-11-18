@@ -100,7 +100,13 @@ class Credit:
         self.value = value
         self.op_name = "Credit"
 
-    def check_eligible(self, account):
+    def check_eligible_enterprise(self, account) -> bool:
+        if account.balance > self.value*2 and -1775 in account.historia:
+            return True
+        else:
+            return False
+
+    def check_eligible_normal_acc(self, account):
         if len(account.historia) >= 3:
             state = True
             if account.historia[-1] <= 0:
@@ -125,7 +131,11 @@ class Credit:
             return False
 
     def exec(self, account):
-        is_eligible = self.check_eligible(account)
+        if type(account) == Account:
+            is_eligible = self.check_eligible_normal_acc(account)
+        elif type(account) == AccountFirma:
+            is_eligible = self.check_eligible_enterprise(account)
+
         if is_eligible:
             account.balance += self.value
             account.historia.append(self.value)
@@ -160,7 +170,6 @@ class Deposit:
         account.balance = account.balance + self.value
         account.historia.append(self.value)
         return True
-
 
 class OperationLogger:
     def __init__(self):
