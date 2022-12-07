@@ -2,6 +2,7 @@ import unittest
 
 from ..Account import Account, AccountFirma
 from ..Account import Withdrawal, Transfer, Deposit
+from ..RejestrKont import RejestrKont
 
 valid_pesel = "02252928673"
 
@@ -172,3 +173,25 @@ class TestCreateAccountFirma(unittest.TestCase):
         firma = AccountFirma("Antmicro", "100643223918")
 
         self.assertEqual(firma.nip, "Niepoprawny NIP!")
+
+class TestRejestKont(unittest.TestCase):
+    konto1 = Account("Zenon", "Gdula", "02252928673")
+    konto2 = AccountFirma("Usługi Informatyczne Wiesław Pawłowski", "4202137000")
+    konto3 = Account("Karol", "Wojtyła", "33260519847")
+
+    def test_add_konto1(self):
+        konto1 = Account("Zenon", "Gdula", "02252928673")
+        konto3 = Account("Karol", "Wojtyła", "33260519847")
+        RejestrKont.dodaj(konto1)
+        RejestrKont.dodaj(konto3)
+
+        self.assertEqual(RejestrKont.lista, [konto1, konto3])
+
+    def test_find_konto(self):
+        konto1 = Account("Zenon", "Gdula", "02252928673")
+        konto3 = Account("Karol", "Wojtyła", "33260519847")
+        found = RejestrKont.find(konto1.pesel)
+        
+        self.assertEqual(found.pesel, konto1.pesel)
+
+
